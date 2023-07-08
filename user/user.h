@@ -1,3 +1,4 @@
+#include<stdint.h>
 struct stat;
 struct rtcdate;
 

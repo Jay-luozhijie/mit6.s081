@@ -32,11 +32,11 @@ void find(char *dir, char *filename){
         memmove(p, de.name, DIRSIZ);
         p[DIRSIZ] = 0;
         if (strcmp (de.name, filename) == 0){
-            printf("find the file: %s/%s\n", dir, filename);
+            printf("%s/%s\n", dir, filename);
         }
         
         if (stat(buf, &st) < 0){
-            printf("find: cannot stat %s\n", buf);
+            fprintf(2, "find: cannot stat %s\n", buf);
             continue;
         }
 
@@ -46,7 +46,6 @@ void find(char *dir, char *filename){
             char fn[sizeof(filename)];
             strcpy(fn, filename);
             strcpy(newBuf, buf);
-            printf("enter dir %s, try to find the file %s\n", newBuf, fn);
 
             find(newBuf, fn);
             

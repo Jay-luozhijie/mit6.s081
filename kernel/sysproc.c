@@ -80,10 +80,39 @@ sys_sleep(void)
 int
 sys_pgaccess(void)
 {
-  // lab pgtbl: your code here.
+  uint64 va;
+  int pageNum;
+  uint64 bufAddr;
+  pte_t *pte;
+
+  argaddr(0, &va);
+  argint(1, &pageNum);
+  argaddr(2, &bufAddr);
+
+
+  if (pageNum > 64) return -1;
+  uint64 bitmap = 0;
+  int offset = 0;
+  int mask  = 1;
+
+
+  uint64 a = PGROUNDDOWN(va);
+  for (int i = 0; i < pageNum; i++){
+    if ((pte = walk(myproc()->pagetable, a, 0)) != 0){
+      if (*pte & PTE_A){
+        bitmap = bitmap | (mask << offset);
+        *pte &= ~PTE_A;
+      }
+    }
+    a+= PGSIZE;
+    offset++;
+  }
+  copyout(myproc()->pagetable, bufAddr, (char*)&bitmap, sizeof(bitmap));
   return 0;
 }
 #endif
+
+
 
 uint64
 sys_kill(void)

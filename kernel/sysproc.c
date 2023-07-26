@@ -91,7 +91,9 @@ sys_pgaccess(void)
 
 
   if (pageNum > 64) return -1;
-  uint64 bitmap = 0;
+  char *bitmap = kalloc();
+  memset(bitmap, 0, PGSIZE);
+  char *bitmapPtr = bitmap;
   int offset = 0;
   int mask  = 1;
 
@@ -100,14 +102,16 @@ sys_pgaccess(void)
   for (int i = 0; i < pageNum; i++){
     if ((pte = walk(myproc()->pagetable, a, 0)) != 0){
       if (*pte & PTE_A){
-        bitmap = bitmap | (mask << offset);
+        *bitmapPtr |= (mask<<offset);
         *pte &= ~PTE_A;
       }
     }
+    bitmapPtr += (offset + 1) / 8;
+    offset = (offset + 1) % 8;
     a+= PGSIZE;
-    offset++;
   }
-  copyout(myproc()->pagetable, bufAddr, (char*)&bitmap, sizeof(bitmap));
+  
+  copyout(myproc()->pagetable, bufAddr, bitmap, sizeof(bitmap));
   return 0;
 }
 #endif
